@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const YourComponent = () => {
+  const [warehouses, setWarehouses] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
+
+  useEffect(() => {
+    // Fetch warehouse data from your API
+    fetch('your-warehouse-api-url')
+      .then(response => response.json())
+      .then(data => setWarehouses(data))
+      .catch(error => console.error('Error fetching warehouses:', error));
+
+    // Fetch supplier data from your API
+    fetch('your-supplier-api-url')
+      .then(response => response.json())
+      .then(data => setSuppliers(data))
+      .catch(error => console.error('Error fetching suppliers:', error));
+  }, []);
+
+  const handleUpdateData = () => {
+    // Check if both warehouse and supplier are selected
+    if (selectedWarehouse && selectedSupplier) {
+      // Prepare the payload for the PUT request
+      const payload = {
+        warehouseId: selectedWarehouse.value,
+        supplierId: selectedSupplier.value,
+      };
+
+      // Perform the PUT request to update data
+      fetch('your-update-api-url', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(response => response.json())
+        .then(updatedData => {
+          // Handle the updated data as needed
+          console.log('Data updated successfully:', updatedData);
+        })
+        .catch(error => console.error('Error updating data:', error));
+    } else {
+      console.error('Please select both warehouse and supplier before updating.');
+    }
+  };
+
+  return (
+    <div>
+      <label>Warehouse:</label>
+      <Select
+        options={warehouses.map(warehouse => ({ value: warehouse.id, label: warehouse.name }))}
+        value={selectedWarehouse}
+        onChange={selectedOption => setSelectedWarehouse(selectedOption)}
+      />
+
+      <label>Supplier:</label>
+      <Select
+        options={suppliers.map(supplier => ({ value: supplier.id, label: supplier.name }))}
+        value={selectedSupplier}
+        onChange={selectedOption => setSelectedSupplier(selectedOption)}
+      />
+
+      <button onClick={handleUpdateData}>Update Data</button>
+    </div>
+  );
+};
+
+export default YourComponent;
