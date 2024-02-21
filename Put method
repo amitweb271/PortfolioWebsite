@@ -1,0 +1,102 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const YourFormComponent = () => {
+  const [formData, setFormData] = useState({
+    // Initialize form fields here
+    fieldName: '',
+    // Add more fields as needed
+  });
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.put('your-api-endpoint/id', formData);
+      
+      if (response.status === 200) {
+        console.log('Data updated successfully!');
+        // Optionally, you can reset the form fields after successful submission
+        setFormData({
+          fieldName: '',
+          // Reset other fields as needed
+        });
+      } else {
+        console.error('Failed to update data');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleFormSubmit}>
+      {/* Render your form fields */}
+      <input
+        type="text"
+        name="fieldName"
+        value={formData.fieldName}
+        onChange={handleInputChange}
+      />
+      {/* Add more form fields as needed */}
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default YourFormComponent;
+//2 second method//
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const YourFormComponent = () => {
+  const [formData, setFormData] = useState({
+    // Initialize form fields here
+    name: '',
+    // Add more fields as needed
+  });
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    // Replace 'your-api-endpoint/id' with the actual endpoint and id
+    const apiUrl = 'your-api-endpoint/id';
+
+    axios.put(apiUrl, formData)
+      .then(response => {
+        // Handle success
+        console.log('Data updated successfully:', response.data);
+        // You may want to update your UI or perform additional actions here
+      })
+      .catch(error => {
+        // Handle error
+        console.error('Error updating data:', error);
+      });
+  };
+
+  return (
+    <form onSubmit={handleFormSubmit}>
+      {/* Render your form fields */}
+      <input
+        type="text"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+      />
+
+      {/* Add more form fields as needed */}
+
+      <button type="submit">Update Data</button>
+    </form>
+  );
+};
+
+export default YourFormComponent;
