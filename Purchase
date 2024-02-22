@@ -1,0 +1,78 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const PurchaseForm = () => {
+  const [branchOptions, setBranchOptions] = useState([]);
+  const [warehouseOptions, setWarehouseOptions] = useState([]);
+  const [supplierOptions, setSupplierOptions] = useState([]);
+
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
+
+  useEffect(() => {
+    // Fetch data for branch options
+    axios.get('your_branch_api_endpoint')
+      .then(response => setBranchOptions(response.data))
+      .catch(error => console.error('Error fetching branches:', error));
+    
+    // Fetch data for warehouse options
+    axios.get('your_warehouse_api_endpoint')
+      .then(response => setWarehouseOptions(response.data))
+      .catch(error => console.error('Error fetching warehouses:', error));
+
+    // Fetch data for supplier options
+    axios.get('your_supplier_api_endpoint')
+      .then(response => setSupplierOptions(response.data))
+      .catch(error => console.error('Error fetching suppliers:', error));
+  }, []);
+
+  const handlePurchaseSubmit = () => {
+    // Perform the POST request with selected data to your purchase API endpoint
+    const purchaseData = {
+      branch: selectedBranch,
+      warehouse: selectedWarehouse,
+      supplier: selectedSupplier,
+      // Add other fields as needed
+    };
+
+    axios.post('your_purchase_api_endpoint', purchaseData)
+      .then(response => console.log('Purchase successful:', response.data))
+      .catch(error => console.error('Error submitting purchase:', error));
+  };
+
+  return (
+    <div>
+      <label>
+        Branch:
+        <select value={selectedBranch} onChange={e => setSelectedBranch(e.target.value)}>
+          {branchOptions.map(branch => (
+            <option key={branch.id} value={branch.id}>{branch.name}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        Warehouse:
+        <select value={selectedWarehouse} onChange={e => setSelectedWarehouse(e.target.value)}>
+          {warehouseOptions.map(warehouse => (
+            <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+          ))}
+        </select>
+      </label>
+
+      <label>
+        Supplier:
+        <select value={selectedSupplier} onChange={e => setSelectedSupplier(e.target.value)}>
+          {supplierOptions.map(supplier => (
+            <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+          ))}
+        </select>
+      </label>
+
+      <button onClick={handlePurchaseSubmit}>Submit Purchase</button>
+    </div>
+  );
+};
+
+export default PurchaseForm;
