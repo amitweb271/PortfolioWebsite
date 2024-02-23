@@ -1,0 +1,32 @@
+import React, { useState } from 'react';
+
+const GstCalculator = () => {
+  const [igst, setIgst] = useState('');
+  const [sgst, setSgst] = useState('');
+  const [cgst, setCgst] = useState('');
+
+  const handleIgstChange = (event) => {
+    const inputValue = event.target.value;
+    setIgst(inputValue);
+
+    // Calculate SGST and CGST
+    const gstValue = parseFloat(inputValue) / 2;
+    setSgst(gstValue.toFixed(2));
+    setCgst(gstValue.toFixed(2));
+  };
+
+  return (
+    <div>
+      <label>IGST:</label>
+      <input type="number" value={igst} onChange={handleIgstChange} />
+
+      <label>SGST:</label>
+      <input type="text" value={sgst} readOnly />
+
+      <label>CGST:</label>
+      <input type="text" value={cgst} readOnly />
+    </div>
+  );
+};
+
+export default GstCalculator;
