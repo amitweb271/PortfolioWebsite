@@ -1,0 +1,105 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function ProductInfo() {
+  const [products, setProducts] = useState([]);
+  const [selectedProductIndex, setSelectedProductIndex] = useState(0);
+  const [productDetails, setProductDetails] = useState(null);
+
+  useEffect(() => {
+    // Fetch product data from API
+    axios.get('your_api_endpoint')
+      .then(response => {
+        setProducts(response.data);
+        // Fetch details for the first product initially
+        fetchProductDetails(response.data[0].id);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+      });
+  }, []);
+
+  const fetchProductDetails = (productId) => {
+    // Fetch product details based on selected product ID
+    axios.get(`your_api_endpoint/${productId}`)
+      .then(response => {
+        setProductDetails(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching product details:', error);
+      });
+  };
+
+  const handleProductChange = (event) => {
+    const selectedIndex = event.target.selectedIndex;
+    setSelectedProductIndex(selectedIndex);
+    const selectedProductId = event.target.value;
+    fetchProductDetails(selectedProductId);
+  };
+
+  const handleRemoveProduct = () => {
+    // Assuming you have a remove endpoint in your API
+    const productIdToRemove = products[selectedProductIndex].id;
+    
+    axios.delete(`your_remove_api_endpoint/${productIdToRemove}`)
+      .then(() => {
+        // Remove the product from the local state
+        const updatedProducts = [...products];
+        updatedProducts.splice(selectedProductIndex, 1);
+        setProducts(updatedProducts);
+
+        // Fetch details for the next product if available
+        if (updatedProducts.length > 0) {
+          const nextProductId = updatedProducts[selectedProductIndex % updatedProducts.length].id;
+          fetchProductDetails(nextProductId);
+        } else {
+          setProductDetails(null); // No products left
+        }
+      })
+      .catch(error => {
+        console.error('Error removing product:', error);
+      });
+  };
+
+  return (
+    <div>
+      <label>Select Product:</label>
+      <select value={products[selectedProductIndex]?.id} onChange={handleProductChange}>
+        {products.map(product => (
+          <option key={product.id} value={product.id}>{product.name}</option>
+        ))}
+      </select>
+
+      {productDetails && (
+        <div>
+          <h2>Product Details</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Discount</th>
+                <th>Shipping Charges</th>
+                <th>HSN Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{productDetails.name}</td>
+                <td>{productDetails.quantity}</td>
+                <td>{productDetails.amount}</td>
+                <td>{productDetails.discount}</td>
+                <td>{productDetails.shippingCharges}</td>
+                <td>{productDetails.hsnCode}</td>
+              </tr>
+            </tbody>
+          </table>
+          <button onClick={handleRemoveProduct}>Remove Product</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ProductInfo;
