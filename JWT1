@@ -1,0 +1,145 @@
+// App.js
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+
+function App() {
+  return (
+    <Router>
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/dashboard" component={Dashboard} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
+// Login.js
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Login = ({ history }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('your-auth-api-endpoint', {
+        username,
+        password,
+      });
+
+      // Store token in local storage
+      localStorage.setItem('token', response.data.token);
+
+      // Redirect to Dashboard after successful login
+      history.push('/dashboard');
+    } catch (error) {
+      console.error('Login failed', error);
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+};
+
+export default Login;
+
+// PrivateRoute.js
+import React from 'react';
+import { Redirect, Route } from 'react-router-dom';
+
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated ? <Component {...props} /> : <Redirect to="/login" />
+      }
+    />
+  );
+};
+
+export default PrivateRoute;
+
+// Login.js
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const Login = ({ history }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('your-auth-api-endpoint', {
+        username,
+        password,
+      });
+
+      // Store token in local storage
+      localStorage.setItem('token', response.data.token);
+
+      // Redirect to Dashboard after successful login
+      history.push('/dashboard');
+    } catch (error) {
+      console.error('Login failed', error);
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+};
+
+export default Login;
+// Dashboard.js
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const Dashboard = () => {
+  const [data, setData] = useState('');
+
+  useEffect(() => {
+    // Retrieve token from local storage
+    const token = localStorage.getItem('token');
+
+    // Make authenticated API request with the token
+    axios.get('your-protected-api-endpoint', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(response => {
+      setData(response.data);
+    })
+    .catch(error => {
+      console.error('API request failed', error);
+    });
+  }, []); // Empty dependency array means this effect runs once after initial render
+
+  return (
+    <div>
+      <h2>Dashboard</h2>
+      <p>Data from authenticated API: {data}</p>
+    </div>
+  );
+};
+
+export default Dashboard;
