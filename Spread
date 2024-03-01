@@ -1,0 +1,16 @@
+const handleProductChange = (event) => {
+  setSelectedProduct(event.target.value);
+
+  // Fetch product details based on selected product ID
+  axios.get(`your_api_endpoint/${event.target.value}`)
+    .then(response => {
+      const updatedProductDetails = response.data;
+      setProductDetails(updatedProductDetails);
+
+      // Use spread operator to add the selected product to the existing products array
+      setProducts(prevProducts => [...prevProducts, updatedProductDetails]);
+    })
+    .catch(error => {
+      console.error('Error fetching product details:', error);
+    });
+};
