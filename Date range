@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import axios from 'axios'; // Assuming you're using axios for HTTP requests
+
+const DataDisplayComponent = () => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [data, setData] = useState([]);
+
+  const fetchData = () => {
+    return axios.get(`/api/data?startDate=${startDate}&endDate=${endDate}`);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchData()
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <label>Start Date:</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <label>End Date:</label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+        <button type="submit">Submit</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{item.data}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default DataDisplayComponent;
