@@ -1,0 +1,80 @@
+// ParentComponent.jsx
+import React, { useState, useEffect } from 'react';
+import ChildComponent from './ChildComponent';
+import axios from 'axios';
+
+const ParentComponent = () => {
+  const header = [{"label": "id", "field": "id"}];
+  const [data, setData] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  useEffect(() => {
+    fetchData();
+  }, [startDate, endDate]);
+
+  const fetchData = () => {
+    axios.get(`https://your-api-url/data`, {
+      params: {
+        startDate: startDate,
+        endDate: endDate,
+      },
+    })
+    .then((response) => {
+      setData(response.data);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  };
+
+  const handleDateSubmit = () => {
+    // You can add additional logic or validation if needed
+    fetchData();
+  };
+
+  return (
+    <div>
+      <ChildComponent
+        head={header}
+        title={'product '}
+        data={data}
+        onDateSubmit={handleDateSubmit}
+      />
+    </div>
+  );
+};
+
+export default ParentComponent;
+// ChildComponent.jsx
+import React from 'react';
+
+const ChildComponent = ({ head, title, data, onDateSubmit }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      {/* Date selection and submit logic go here */}
+      <button onClick={onDateSubmit}>Submit Dates</button>
+      <table>
+        <thead>
+          <tr>
+            {head.map((item) => (
+              <th key={item.field}>{item.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row) => (
+            <tr key={row.id}>
+              {head.map((item) => (
+                <td key={item.field}>{row[item.field]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default ChildComponent;
