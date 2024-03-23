@@ -1,0 +1,53 @@
+import React, { useState, useEffect } from 'react';
+
+const YourComponent = () => {
+  const [options, setOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [updatedOptions, setUpdatedOptions] = useState([]);
+
+  useEffect(() => {
+    // Fetch data from your API
+    fetch('your-api-endpoint')
+      .then(response => response.json())
+      .then(data => {
+        setOptions(data);
+        setUpdatedOptions(data);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
+  // Handle multi-select change
+  const handleSelectChange = (event) => {
+    const selectedValues = Array.from(event.target.selectedOptions, option => option.value);
+    setSelectedOptions(selectedValues);
+  };
+
+  // Handle update button click
+  const handleUpdate = () => {
+    // Update options based on selected values
+    const updatedOptions = options.map(option => ({
+      ...option,
+      selected: selectedOptions.includes(option.value)
+    }));
+    setUpdatedOptions(updatedOptions);
+
+    // Send updated options to the server or perform other actions as needed
+    console.log("Updated options:", updatedOptions);
+  };
+
+  return (
+    <div>
+      <label>Select Options:</label>
+      <select multiple value={selectedOptions} onChange={handleSelectChange}>
+        {updatedOptions.map(option => (
+          <option key={option.id} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleUpdate}>Update</button>
+    </div>
+  );
+};
+
+export default YourComponent;
