@@ -1,0 +1,126 @@
+// LoginPage.js
+import React, { useState } from 'react';
+import AuthService from './AuthService';
+
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    const loginSuccess = await AuthService.login(username, password);
+    if (loginSuccess) {
+      onLogin(username);
+    } else {
+      setError('Invalid username or password');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default LoginPage;
+
+// AuthUserPage.js
+import React from 'react';
+import getAuthHeader from './AuthHeader';
+
+class AuthUserPage extends React.Component {
+  state = {
+    userData: null,
+  };
+
+  componentDidMount() {
+    this.fetchUserData();
+  }
+
+  fetchUserData = async () => {
+    try {
+      const response = await axios.get('YOUR_USER_DATA_API_ENDPOINT', {
+        headers: getAuthHeader(), // Set authorization header
+      });
+      if (response.status === 200) {
+        this.setState({ userData: response.data });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  render() {
+    const { userData } = this.state;
+    return (
+      <div>
+        <h1>User Information</h1>
+        {userData && (
+          <div>
+            <p>Username: {userData.username}</p>
+            {/* Display other user information here */}
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+export default AuthUserPage;
+
+// AuthHeader.js
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  } else {
+    return {};
+  }
+};
+
+export default getAuthHeader;
+
+// AuthService.js
+import axios from 'axios';
+
+const AuthService = {
+  login: async (username, password) => {
+    try {
+      const response = await axios.post('YOUR_LOGIN_API_ENDPOINT', {
+        username,
+        password,
+      });
+      if (response.status === 200) {
+        const token = response.data.token; // Assuming the response contains a token
+        localStorage.setItem('token', token); // Store token in local storage
+        return true; // Login successful
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      return false; // Login failed
+    }
+  },
+  logout: () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+  },
+};
+
+export default AuthService;
+
