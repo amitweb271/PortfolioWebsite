@@ -1,0 +1,295 @@
+import React, { useState, useEffect } from 'react'; // Import React and useState and useEffect hooks
+import LoginPage from './LoginPage'; // Import the LoginPage component
+import Navbar from './Navbar'; // Import the Navbar component
+import Sidebar from './Sidebar'; // Import the Sidebar component
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track if the user is logged in
+  const [username, setUsername] = useState(''); // State to store the username
+
+  // Function to handle user login
+  const handleLogin = (username) => {
+    setUsername(username); // Set the username
+    setIsLoggedIn(true); // Set isLoggedIn to true
+  };
+
+  // Function to handle user logout
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false); // Set isLoggedIn to false
+  };
+
+  // useEffect hook to check if the user is already logged in when the component mounts
+  useEffect(() => {
+    // Check if there's a token in local storage
+    if (localStorage.getItem('token')) {
+      // If token exists, set isLoggedIn to true
+      setIsLoggedIn(true);
+      // You might want to fetch user data here and set the username as well
+    }
+  }, []);
+
+  // If user is not logged in, render the LoginPage component
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // If user is logged in, render the main content including Navbar, Sidebar, and welcome message
+  return (
+    <div>
+      <Navbar /> {/* Render the Navbar component */}
+      <Sidebar /> {/* Render the Sidebar component */}
+      <div>
+        <h1>Welcome, {username}!</h1> {/* Display a welcome message with the username */}
+        <button onClick={handleLogout}>Logout</button> {/* Render a logout button */}
+        {/* Add other pages/components here */}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('YOUR_LOGIN_API_ENDPOINT', {
+        username,
+        password,
+      });
+
+      if (response.status === 200) {
+        const token = response.data.token; // Assuming the response contains a token
+        localStorage.setItem('token', token); // Store token in local storage
+        onLogin(username);
+      } else {
+        setError('An error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred. Please try again.');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default LoginPage;
+import React, { useState } from 'react';
+
+// Define your main App component
+function App() {
+  // State to keep track of whether the user is logged in or not
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // State to store user credentials
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Function to handle login
+  const handleLogin = () => {
+    // Here you would typically perform authentication with a backend
+    // For simplicity, let's just check if the username and password are "admin"
+    if (username === 'admin' && password === 'admin') {
+      setIsLoggedIn(true);
+    } else {
+      alert('Invalid username or password');
+    }
+  };
+
+  // Function to handle logout
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
+  // If the user is logged in, render the main content
+  if (isLoggedIn) {
+    return (
+      <div>
+        <h1>Welcome, {username}!</h1>
+        <button onClick={handleLogout}>Logout</button>
+        {/* Add other pages/components here */}
+      </div>
+    );
+  }
+
+  // If the user is not logged in, render the login page
+  return (
+    <div>
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default App;
+import React, { useState } from 'react';
+
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    // Validate username and password
+    if (username === 'admin' && password === 'admin') {
+      // Call the onLogin function passed from the parent component
+      onLogin(username);
+    } else {
+      alert('Invalid username or password');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default LoginPage;
+import React, { useState } from 'react';
+import LoginPage from './LoginPage';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <div>
+      {/* Conditionally render login page if user is not logged in */}
+      {!isLoggedIn && <LoginPage onLogin={handleLogin} />}
+      
+      {/* Conditionally render other pages if user is logged in */}
+      {isLoggedIn && (
+        <div>
+          <h1>Welcome, {username}!</h1>
+          {/* Render navbar and sidebar components here */}
+          <button onClick={handleLogout}>Logout</button>
+          {/* Add other pages/components here */}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const API_URL = 'http://your-api-url.com';
+
+function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/data`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleCreate = async newData => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`${API_URL}/data`, newData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error creating data:', error);
+    }
+  };
+
+  // Implement similar functions for update and delete operations
+
+  return (
+    <div>
+      {/* Display your data */}
+      <ul>
+        {data.map(item => (
+          <li key={item.id}>{item.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
+
