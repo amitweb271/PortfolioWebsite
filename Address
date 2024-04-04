@@ -1,0 +1,68 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const AddressForm = () => {
+  const [addresses, setAddresses] = useState([{ address: '' }]);
+
+  useEffect(() => {
+    // Fetch existing addresses on component mount
+    fetchAddresses();
+  }, []);
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get('api/addresses');
+      setAddresses(response.data);
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+    }
+  };
+
+  const handleInputChange = (index, event) => {
+    const newAddresses = [...addresses];
+    newAddresses[index].address = event.target.value;
+    setAddresses(newAddresses);
+  };
+
+  const handleAddAddress = () => {
+    setAddresses([...addresses, { address: '' }]);
+  };
+
+  const handleRemoveAddress = (index) => {
+    const newAddresses = [...addresses];
+    newAddresses.splice(index, 1);
+    setAddresses(newAddresses);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await axios.post('api/addresses', addresses);
+      console.log('Addresses saved successfully!');
+    } catch (error) {
+      console.error('Error saving addresses:', error);
+    }
+  };
+
+  return (
+    <div>
+      {addresses.map((address, index) => (
+        <div key={index}>
+          <input
+            type="text"
+            value={address.address}
+            onChange={(e) => handleInputChange(index, e)}
+          />
+          {index === addresses.length - 1 && (
+            <button onClick={handleAddAddress}>+</button>
+          )}
+          {index !== 0 && (
+            <button onClick={() => handleRemoveAddress(index)}>-</button>
+          )}
+        </div>
+      ))}
+      <button onClick={handleSubmit}>Submit</button>
+    </div>
+  );
+};
+
+export default AddressForm;
