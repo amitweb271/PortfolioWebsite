@@ -1,0 +1,55 @@
+import React, { useState } from 'react';
+import LoginPage from './LoginPage';
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false);
+  };
+
+  // Check if the user is logged in by checking the token in local storage
+  // You might need to adjust the logic based on your authentication mechanism
+  if (!isLoggedIn && !localStorage.getItem('token')) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return (
+    <div>
+      <Navbar onLogout={handleLogout} />
+      <Sidebar />
+      <div>
+        <h1>Welcome, {username}!</h1>
+        {/* Add other pages/components here */}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
+import React from 'react';
+
+function Navbar({ onLogout }) {
+  return (
+    <nav>
+      <div className="navbar-container">
+        <h2>Navbar</h2>
+        <button onClick={onLogout}>Logout</button>
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
+
+
