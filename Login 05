@@ -100,3 +100,20 @@ function App() {
 export default App;
 
 
+import React from 'react';
+
+function Navbar({ onLogout }) {
+  const handleLogout = () => {
+    onLogout();
+    alert('Logged out successfully!');
+  };
+
+  return (
+    <div>
+      <h2>Navbar</h2>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+}
+
+export default Navbar;
