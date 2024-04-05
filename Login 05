@@ -1,0 +1,102 @@
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage'; // Import your home page component
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false);
+  };
+
+  // Check if the user is logged in by checking the token in local storage
+  // You might need to adjust the logic based on your authentication mechanism
+  if (!isLoggedIn && !localStorage.getItem('token')) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return (
+    <Router>
+      <div>
+        <Navbar onLogout={handleLogout} />
+        <Sidebar />
+        <div>
+          {/* Define routes */}
+          <Route exact path="/">
+            <Redirect to="/home" />
+          </Route>
+          <Route path="/home">
+            <HomePage username={username} />
+          </Route>
+          {/* Add other routes for additional pages/components */}
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage'; // Import your home page component
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false);
+  };
+
+  // Check if the user is logged in by checking the token in local storage
+  // You might need to adjust the logic based on your authentication mechanism
+  if (!isLoggedIn && !localStorage.getItem('token')) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return (
+    <Router>
+      <div>
+        <Navbar onLogout={handleLogout} />
+        <Sidebar />
+        <div>
+          {/* Define routes */}
+          <Route exact path="/">
+            <Redirect to="/home" />
+          </Route>
+          <Route path="/home">
+            {isLoggedIn ? <HomePage username={username} /> : <Redirect to="/login" />}
+          </Route>
+          <Route path="/login">
+            {!isLoggedIn ? <LoginPage onLogin={handleLogin} /> : <Redirect to="/home" />}
+          </Route>
+          {/* Add other routes for additional pages/components */}
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+
