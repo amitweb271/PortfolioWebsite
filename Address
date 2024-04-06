@@ -273,4 +273,99 @@ const AddressForm = () => {
 export default AddressForm;
 
 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const AddressForm = () => {
+  const [addresses, setAddresses] = useState([]);
+  const [states, setStates] = useState([]);
+
+  useEffect(() => {
+    // Fetch list of states and addresses from the API on component mount
+    fetchStates();
+    fetchAddresses();
+  }, []);
+
+  const fetchStates = async () => {
+    try {
+      const response = await axios.get('STATES_API_URL');
+      setStates(response.data);
+    } catch (error) {
+      console.error('Error fetching states:', error);
+    }
+  };
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get('ADDRESSES_API_URL');
+      setAddresses(response.data);
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+    }
+  };
+
+  const handleInputChange = (index, fieldName, value) => {
+    const updatedAddresses = [...addresses];
+    updatedAddresses[index][fieldName] = value;
+    setAddresses(updatedAddresses);
+  };
+
+  const handleStateSelect = (index, stateId) => {
+    const updatedAddresses = [...addresses];
+    updatedAddresses[index]['stateId'] = stateId;
+    setAddresses(updatedAddresses);
+  };
+
+  const handleUpdateAddress = async () => {
+    try {
+      // Extract only state IDs from the addresses array
+      const stateIds = addresses.map(address => address.stateId);
+      
+      // Send state IDs to the backend for storage
+      await axios.post('SAVE_STATE_IDS_API_URL', stateIds);
+      
+      alert('State IDs saved successfully!');
+    } catch (error) {
+      console.error('Error saving state IDs:', error);
+    }
+  };
+
+  return (
+    <div>
+      {addresses.map((address, index) => (
+        <div key={index}>
+          <input
+            type="text"
+            value={address.address}
+            onChange={e => handleInputChange(index, 'address', e.target.value)}
+          />
+          <input
+            type="text"
+            value={address.pinCode}
+            onChange={e => handleInputChange(index, 'pinCode', e.target.value)}
+            placeholder="Pin Code"
+          />
+          <select
+            value={address.stateId}
+            onChange={e => handleStateSelect(index, e.target.value)}
+          >
+            <option value="">Select State</option>
+            {states.map(state => (
+              <option key={state.id} value={state.id}>{state.name}</option>
+            ))}
+          </select>
+          <input
+            type="text"
+            value={address.country}
+            onChange={e => handleInputChange(index, 'country', e.target.value)}
+            placeholder="Country"
+          />
+        </div>
+      ))}
+      <button onClick={handleUpdateAddress}>Save State IDs</button>
+    </div>
+  );
+};
+
+export default AddressForm;
 
