@@ -1,0 +1,47 @@
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, useHistory } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Navbar from './Navbar';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage'; // Import your home page component
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+  const history = useHistory();
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+    history.push('/home'); // Redirect to home page after login
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false);
+    history.push('/login'); // Redirect to login page after logout
+  };
+
+  return (
+    <Router>
+      <div>
+        <Navbar onLogout={handleLogout} />
+        <Sidebar />
+        <div>
+          <Route exact path="/">
+            {isLoggedIn ? <HomePage username={username} /> : <LoginPage onLogin={handleLogin} />}
+          </Route>
+          <Route path="/home">
+            {isLoggedIn ? <HomePage username={username} /> : <LoginPage onLogin={handleLogin} />}
+          </Route>
+          <Route path="/login">
+            {!isLoggedIn ? <LoginPage onLogin={handleLogin} /> : <HomePage username={username} />}
+          </Route>
+          {/* Add other routes for additional pages/components */}
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
