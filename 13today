@@ -1,0 +1,208 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage';
+import ProfilePage from './ProfilePage';
+import SettingsPage from './SettingsPage';
+import userService from './UserService';
+
+function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const userInfo = await userService.getUserInfo();
+        setCurrentUser(userInfo);
+      } catch (error) {
+        console.error('Authentication failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAuth();
+  }, []);
+
+  let mainComponent;
+
+  if (loading) {
+    mainComponent = <div>Loading...</div>;
+  } else if (currentUser) {
+    mainComponent = (
+      <div>
+        <Sidebar currentUser={currentUser} onLogout={handleLogout} />
+        <div className="container">
+          <Route exact path="/">
+            <HomePage currentUser={currentUser} />
+          </Route>
+          <Route path="/home">
+            <HomePage currentUser={currentUser} />
+          </Route>
+          <Route path="/profile">
+            <ProfilePage currentUser={currentUser} />
+          </Route>
+          <Route path="/settings">
+            <SettingsPage currentUser={currentUser} />
+          </Route>
+        </div>
+      </div>
+    );
+  } else {
+    mainComponent = <LoginPage onLogin={handleLogin} />;
+  }
+
+  return (
+    <Router>
+      {mainComponent}
+    </Router>
+  );
+}
+
+export default App;
+// UserService.js
+import axios from 'axios';
+
+class UserService {
+  async login(username, password) {
+    const response = await axios.post('/login', { username, password });
+    localStorage.setItem('token', response.data.token);
+    return response.data.token;
+  }
+
+  async getUserInfo() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const response = await axios.get('/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
+}
+
+export default new UserService();
+import React, { useState } from 'react';
+import userService from './UserService';
+
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const token = await userService.login(username, password);
+      localStorage.setItem('token', token);
+      const userInfo = await userService.getUserInfo();
+      onLogin(userInfo);
+    } catch (error) {
+      setError('Invalid username or password');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default LoginPage;
+import React, { useState } from 'react';
+import axios from 'axios';
+
+function RegistrationForm() {
+  const [formData, setFormData] = useState({ userName: '', email: '', mobile: '' });
+  const [emailError, setEmailError] = useState('');
+  const [mobileError, setMobileError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check if email already exists in the database
+    const emailExists = await checkEmailExists(formData.email);
+    if (emailExists) {
+      setEmailError('This email already exists.');
+      return;
+    }
+
+    // Check if mobile number already exists in the database
+    const mobileExists = await checkMobileExists(formData.mobile);
+    if (mobileExists) {
+      setMobileError('This mobile number already exists.');
+      return;
+    }
+
+    // If no errors, post the form data to the database
+    try {
+      const response = await axios.post('your-backend-url/registration', formData);
+      if (response.status === 200) {
+        // Data successfully posted to the database
+        console.log('Form data submitted successfully!');
+        // You can reset the form after successful submission if needed
+        setFormData({ userName: '', email: '', mobile: '' });
+      } else {
+        // Handle error if data posting fails
+        console.error('Failed to submit form data.');
+      }
+    } catch (error) {
+      console.error('Error submitting form data:', error);
+    }
+  };
+
+  const checkEmailExists = async (email) => {
+    // Simulated API call to check email existence
+    // Replace this with actual backend API call
+    const response = await axios.get(`your-backend-url/checkEmail?email=${email}`);
+    return response.data.exists;
+  };
+
+  const checkMobileExists = async (mobile) => {
+    // Simulated API call to check mobile number existence
+    // Replace this with actual backend API call
+    const response = await axios.get(`your-backend-url/checkMobile?mobile=${mobile}`);
+    return response.data.exists;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="userName" value={formData.userName} onChange={handleChange} placeholder="User Name" />
+      <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email Address" />
+      {emailError && <p>{emailError}</p>}
+      <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} placeholder="Mobile Number" />
+      {mobileError && <p>{mobileError}</p>}
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+export default RegistrationForm;
