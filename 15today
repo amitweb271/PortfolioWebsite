@@ -1,0 +1,142 @@
+import React, { useState } from 'react';
+import userService from './UserService';
+
+function LoginPage({ onLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    try {
+      const user = await userService.login(email, password);
+      onLogin(user);
+    } catch (error) {
+      setError('Invalid email or password');
+    }
+  };
+
+  return (
+    <div>
+      <h1>Login</h1>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button onClick={handleLogin}>Login</button>
+    </div>
+  );
+}
+
+export default LoginPage;
+
+// UserService.js
+import axios from 'axios';
+
+class UserService {
+  async login(email, password) {
+    const response = await axios.post('/login', { email, password });
+    localStorage.setItem('token', response.data.token);
+    return response.data; // Assuming the response contains user data including role
+  }
+
+  async getUserInfo() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    const response = await axios.get('/user', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
+}
+
+export default new UserService();
+
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage';
+import ProfilePage from './ProfilePage';
+import SettingsPage from './SettingsPage';
+import userService from './UserService';
+
+function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const userInfo = await userService.getUserInfo();
+        setCurrentUser(userInfo);
+      } catch (error) {
+        console.error('Authentication failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAuth();
+  }, []);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('token');
+  };
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <Router>
+      {currentUser ? (
+        <div>
+          <Sidebar currentUser={currentUser} onLogout={handleLogout} />
+          <div className="container">
+            <Route exact path="/">
+              {currentUser.role === 'admin' ? (
+                <Redirect to="/dashboard" />
+              ) : (
+                <Redirect to="/home" />
+              )}
+            </Route>
+            <Route path="/home">
+              <HomePage currentUser={currentUser} />
+            </Route>
+            <Route path="/dashboard">
+              <DashboardPage currentUser={currentUser} />
+            </Route>
+            <Route path="/profile">
+              <ProfilePage currentUser={currentUser} />
+            </Route>
+            <Route path="/settings">
+              <SettingsPage currentUser={currentUser} />
+            </Route>
+          </div>
+        </div>
+      ) : (
+        <LoginPage onLogin={handleLogin} />
+      )}
+    </Router>
+  );
+}
+
+export default App;
+
