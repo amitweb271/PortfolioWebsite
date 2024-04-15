@@ -140,3 +140,69 @@ function App() {
 
 export default App;
 
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import Sidebar from './Sidebar';
+import HomePage from './HomePage';
+import ProfilePage from './ProfilePage';
+import SettingsPage from './SettingsPage';
+
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    // Check if the user is logged in by checking the token in local storage
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+      // You might also fetch user details here and set the username
+    }
+  }, []);
+
+  const handleLogin = (username) => {
+    setUsername(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // Remove token from local storage
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <Router>
+      <div>
+        {isLoggedIn && <Sidebar onLogout={handleLogout} />}
+        <div className="container">
+          {/* Render content only when logged in */}
+          {isLoggedIn && (
+            <React.Fragment>
+              <Route exact path="/">
+                <Redirect to="/home" />
+              </Route>
+              <Route path="/home">
+                <HomePage username={username} />
+              </Route>
+              <Route path="/profile">
+                <ProfilePage />
+              </Route>
+              <Route path="/settings">
+                <SettingsPage />
+              </Route>
+              {/* Add other routes for additional pages/components */}
+            </React.Fragment>
+          )}
+          {/* Render login page if not logged in */}
+          {!isLoggedIn && <Route path="/login"><LoginPage onLogin={handleLogin} /></Route>}
+        </div>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
+
+
+
