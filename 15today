@@ -205,4 +205,61 @@ function App() {
 export default App;
 
 
+import React from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object({
+  email: Yup.string().email('Invalid email address').required('Email is required'),
+  phoneNumber: Yup.string().matches(/^[0-9]{10}$/, 'Invalid phone number').required('Phone number is required'),
+});
+
+const MyForm = () => {
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      phoneNumber: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      console.log(values);
+    },
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <div>
+        <label htmlFor="email">Email Address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.email}
+        />
+        {formik.touched.email && formik.errors.email ? (
+          <div>{formik.errors.email}</div>
+        ) : null}
+      </div>
+      <div>
+        <label htmlFor="phoneNumber">Phone Number</label>
+        <input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="text"
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          value={formik.values.phoneNumber}
+        />
+        {formik.touched.phoneNumber && formik.errors.phoneNumber ? (
+          <div>{formik.errors.phoneNumber}</div>
+        ) : null}
+      </div>
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default MyForm;
 
