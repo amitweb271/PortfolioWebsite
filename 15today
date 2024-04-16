@@ -263,3 +263,42 @@ const MyForm = () => {
 
 export default MyForm;
 
+import React, { useState } from 'react';
+import validator from 'validator';
+
+function LoginForm() {
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const validateEmail = () => {
+    if (!validator.isEmail(email)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    validateEmail();
+
+    // Additional login logic
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Email:</label>
+        <input type="email" value={email} onChange={handleEmailChange} />
+        {emailError && <span style={{ color: 'red' }}>{emailError}</span>}
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  );
+}
+
+export default LoginForm;
