@@ -44,6 +44,28 @@ export default FileUploadForm;
 
 
 
+////////
+upload
+
+const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData();
+  Array.from(selectedFiles).forEach(file => {
+    formData.append('files', file);
+  });
+
+  try {
+    const response = await axios.post('http://your-backend-api.com/endpoint', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log(response.data);
+  } catch (error) {
+    console.error('Error uploading files:', error);
+  }
+};
 
 
 // src/ExcelViewer.js
