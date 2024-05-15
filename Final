@@ -1,3 +1,35 @@
+// src/ExcelViewer.js
+import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
+import DataTable from 'react-data-table-component';
+import axios from 'axios';
+
+const ExcelViewer = () => {
+  const [data, setData] = useState([]);
+  const [columns, setColumns] = useState([]);
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const binaryStr = e.target.result;
+      const workbook = XLSX.read(binaryStr, { type: 'binary' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      if (jsonData.length) {
+        const headers = jsonData[0];
+        const rows = jsonData.slice(1);
+        
+        const formattedColumns = headers.map(header => ({
+          name: header,
+          selector: header,
+          sortable: true
+        }));
+
+        const format
 
 import React, { useState } from 'react';
 import axios from 'axios';
