@@ -4,6 +4,80 @@ import axios from 'axios';
 
 const FileUploadForm = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [tableData, setTableData] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFiles(event.target.files);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach(file => {
+      formData.append('files', file);
+    });
+
+    // Convert FormData to URL parameters (assuming your backend can handle this format)
+    const queryParams = new URLSearchParams();
+    formData.forEach((value, key) => {
+      queryParams.append(key, value.name); // Appending file names, adjust as needed
+    });
+
+    try {
+      const response = await axios.get(`http://your-backend-api.com/endpoint?${queryParams.toString()}`);
+      setTableData(response.data); // Assuming the response data is an array of objects
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input type="file" multiple onChange={handleFileChange} />
+        <button type="submit">Send</button>
+      </form>
+
+      {tableData.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              {/* Replace with actual column names based on your data structure */}
+              <th>ID</th>
+              <th>Name</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.id}</td>
+                <td>{item.name}</td>
+                <td>{item.type}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+};
+
+export default FileUploadForm;
+
+
+
+
+/////
+
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const FileUploadForm = () => {
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const handleFileChange = (event) => {
     setSelectedFiles(event.target.files);
