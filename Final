@@ -1,3 +1,51 @@
+
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const FileUploadForm = () => {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFiles(event.target.files);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach(file => {
+      formData.append('files', file);
+    });
+
+    // Convert FormData to URL parameters (assuming your backend can handle this format)
+    const queryParams = new URLSearchParams();
+    formData.forEach((value, key) => {
+      queryParams.append(key, value.name); // Appending file names, adjust as needed
+    });
+
+    try {
+      const response = await axios.get(`http://your-backend-api.com/endpoint?${queryParams.toString()}`);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="file" multiple onChange={handleFileChange} />
+      <button type="submit">Send</button>
+    </form>
+  );
+};
+
+export default FileUploadForm;
+
+
+
+
+
+
 // src/ExcelViewer.js
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
