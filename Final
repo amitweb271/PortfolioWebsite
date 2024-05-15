@@ -1,4 +1,91 @@
+
 import React, { useState } from 'react';
+import axios from 'axios';
+import * as XLSX from 'xlsx';
+import { Container, Row, Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
+
+function App() {
+  const [fileData, setFileData] = useState(null);
+  const [apiData, setApiData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+        setFileData(jsonData);
+        console.log(jsonData);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get('https://api.example.com/data');
+      setApiData(response.data);
+      console.log(response.data);
+    } catch (error) {
+      setError('Error fetching data');
+      console.error('Error fetching data', error);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Container className="mt-5">
+      <Row>
+        <Col>
+          <h1 className="text-center">Upload Excel File and Fetch Data</h1>
+          <Form>
+            <Form.Group controlId="formFile" className="mb-3">
+              <Form.Label>Select Excel File</Form.Label>
+              <Form.Control type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+            </Form.Group>
+          </Form>
+          <Button variant="primary" onClick={fetchData} disabled={loading}>
+            {loading ? <Spinner animation="border" size="sm" /> : 'Fetch Data'}
+          </Button>
+          {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+        </Col>
+      </Row>
+      <Row className="mt-5">
+        <Col>
+          <h2>Uploaded File Data</h2>
+          {fileData && (
+            <pre>{JSON.stringify(fileData, null, 2)}</pre>
+          )}
+        </Col>
+      </Row>
+      <Row className="mt-5">
+        <Col>
+          <h2>API Data</h2>
+          {apiData && (
+            <pre>{JSON.stringify(apiData, null, 2)}</pre>
+          )}
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default App;
+
+
+
+
+import React, { useState } 
+
+
+from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 
