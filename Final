@@ -1,6 +1,87 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import DataTable from 'react-data-table-component';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!selectedFile) {
+      alert("Please select a file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await axios.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data); // Set the response data to the state
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  // Define columns for the data table
+  const columns = [
+    {
+      name: 'ID',
+      selector: row => row.id,
+      sortable: true,
+    },
+    {
+      name: 'Name',
+      selector: row => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Detail Value',
+      selector: row => row.details.value,
+      sortable: true,
+    },
+    {
+      name: 'Additional Info',
+      selector: row => row.details.info,
+      sortable: true,
+    },
+  ];
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input type="file" onChange={handleFileChange} />
+        <button type="submit">Upload</button>
+      </form>
+      <DataTable
+        title="Response Data"
+        columns={columns}
+        data={data}
+        pagination
+      />
+    </div>
+  );
+};
+
+export default FileUpload;
+
+
+
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const FileUploadForm = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
