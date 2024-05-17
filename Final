@@ -1,6 +1,166 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleSendRequest = async () => {
+    if (!selectedFile) {
+      alert("Please select a file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await axios.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data); // Set the response data to the state
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleDownloadResponse = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'response.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Define columns for the main data table
+  const columns = [
+    {
+      name: 'ID',
+      selector: row => row.id,
+      sortable: true,
+    },
+    {
+      name: 'Tune Code',
+      selector: row => row.tuneCode,
+      sortable: true,
+    },
+    {
+      name: 'Tune Number',
+      selector: row => row.tuneNo,
+      sortable: true,
+    },
+    {
+      name: 'Artist Name',
+      selector: row => row.details.artist.name,
+      sortable: true,
+    },
+    {
+      name: 'Artist Genre',
+      selector: row => row.details.artist.genre,
+      sortable: true,
+    },
+    {
+      name: 'Album Title',
+      selector: row => row.details.album.title,
+      sortable: true,
+    },
+    {
+      name: 'Album Year',
+      selector: row => row.details.album.year,
+      sortable: true,
+    },
+  ];
+
+  // Component to render nested sessions
+  const SessionComponent = ({ data }) => (
+    <DataTable
+      title="Sessions"
+      columns={[
+        {
+          name: 'Session ID',
+          selector: row => row.sessionId,
+          sortable: true,
+        },
+        {
+          name: 'Session Name',
+          selector: row => row.sessionName,
+          sortable: true,
+        },
+      ]}
+      data={data}
+      noHeader
+      pagination
+    />
+  );
+
+  // Component to render nested tracks with expandable sessions
+  const TrackComponent = ({ data }) => (
+    <DataTable
+      title="Tracks"
+      columns={[
+        {
+          name: 'Track Number',
+          selector: row => row.trackNo,
+          sortable: true,
+        },
+        {
+          name: 'Track Name',
+          selector: row => row.trackName,
+          sortable: true,
+        },
+      ]}
+      data={data}
+      noHeader
+      pagination
+      expandableRows
+      expandableRowsComponent={({ data }) => <SessionComponent data={data.sessions} />}
+    />
+  );
+
+  // Component to render details with expandable tracks
+  const ExpandedComponent = ({ data }) => (
+    <TrackComponent data={data.details.tracks} />
+  );
+
+  return (
+    <div>
+      <div>
+        <input type="file" onChange={handleFileChange} />
+        <button onClick={handleSendRequest}>Send</button>
+        <button onClick={handleDownloadResponse} disabled={data.length === 0}>Download</button>
+      </div>
+      <DataTable
+        title="Response Data"
+        columns={columns}
+        data={data}
+        pagination
+        expandableRows
+        expandableRowsComponent={ExpandedComponent}
+      />
+    </div>
+  );
+};
+
+export default FileUpload;
+
+
+
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
 import { saveAs } from 'file-saver';
 
 const FileUpload = () => {
