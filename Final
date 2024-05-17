@@ -60,6 +60,151 @@ const FileUpload = () => {
       selector: row => row.tuneNo,
       sortable: true,
     },
+  ];
+
+  // Component to render nested artist data
+  const ArtistComponent = ({ data }) => (
+    <DataTable
+      title="Artist"
+      columns={[
+        {
+          name: 'Album Title',
+          selector: row => row.title,
+          sortable: true,
+        },
+        {
+          name: 'Album Year',
+          selector: row => row.year,
+          sortable: true,
+        },
+      ]}
+      data={data.artist}
+      noHeader
+      pagination
+    />
+  );
+
+  // Component to render nested tune code data
+  const TrackComponent = ({ data }) => (
+    <DataTable
+      title="Tracks"
+      columns={[
+        {
+          name: 'Track Number',
+          selector: row => row.trackNo,
+          sortable: true,
+        },
+        {
+          name: 'Track Name',
+          selector: row => row.trackName,
+          sortable: true,
+        },
+      ]}
+      data={data.tunecode}
+      noHeader
+      pagination
+    />
+  );
+
+  // Component to render nested data
+  const ExpandedComponent = ({ data }) => (
+    <div>
+      <ArtistComponent data={data} />
+      <TrackComponent data={data} />
+    </div>
+  );
+
+  return (
+    <div>
+      <div>
+        <input type="file" onChange={handleFileChange} />
+        <button onClick={handleSendRequest}>Send</button>
+        <button onClick={handleDownloadResponse} disabled={data.length === 0}>Download</button>
+      </div>
+      <DataTable
+        title="Response Data"
+        columns={columns}
+        data={data}
+        pagination
+        expandableRows
+        expandableRowsComponent={ExpandedComponent}
+      />
+    </div>
+  );
+};
+
+export default FileUpload;
+
+
+
+
+
+
+
+
+
+import React, { useState } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleSendRequest = async () => {
+    if (!selectedFile) {
+      alert("Please select a file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const response = await axios.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data); // Set the response data to the state
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleDownloadResponse = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'response.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Define columns for the main data table
+  const columns = [
+    {
+      name: 'ID',
+      selector: row => row.id,
+      sortable: true,
+    },
+    {
+      name: 'Tune Code',
+      selector: row => row.tuneCode,
+      sortable: true,
+    },
+    {
+      name: 'Tune Number',
+      selector: row => row.tuneNo,
+      sortable: true,
+    },
     {
       name: 'Artist Name',
       selector: row => row.details.artist.name,
