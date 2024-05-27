@@ -1,0 +1,55 @@
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import axios from 'axios';
+
+const ArtistSelect = () => {
+  const [artists, setArtists] = useState([]);
+  const [selectedArtist, setSelectedArtist] = useState(null);
+  const [selectedMultipleArtists, setSelectedMultipleArtists] = useState([]);
+
+  // Fetch artists data from the API
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const response = await axios.get('YOUR_API_ENDPOINT');
+        setArtists(response.data.map(artist => ({ label: artist.name, value: artist.id })));
+      } catch (error) {
+        console.error('Error fetching artists:', error);
+      }
+    };
+    fetchArtists();
+  }, []);
+
+  // Merge selected multiple artists into the single artist
+  const handleMerge = () => {
+    if (selectedMultipleArtists.length > 0) {
+      const mergedArtists = selectedMultipleArtists.map(artist => artist.label).join(', ');
+      setSelectedArtist({ label: mergedArtists, value: mergedArtists });
+    }
+  };
+
+  return (
+    <div>
+      <h2>Select an Artist</h2>
+      <Select
+        options={artists}
+        value={selectedArtist}
+        onChange={setSelectedArtist}
+        isClearable
+      />
+
+      <h2>Select Multiple Artists</h2>
+      <Select
+        options={artists}
+        value={selectedMultipleArtists}
+        onChange={setSelectedMultipleArtists}
+        isMulti
+        isClearable
+      />
+
+      <button onClick={handleMerge}>Merge Artists</button>
+    </div>
+  );
+};
+
+export default ArtistSelect;
