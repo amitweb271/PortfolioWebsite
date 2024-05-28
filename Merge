@@ -1,3 +1,68 @@
+import React, { useEffect, useState } from 'react';
+import Select from 'react-select';
+import axios from 'axios';
+
+const ArtistSelector = () => {
+  const [artists, setArtists] = useState([]);
+  const [selectedProArtist, setSelectedProArtist] = useState(null);
+  const [selectedCmoArtist, setSelectedCmoArtist] = useState(null);
+
+  useEffect(() => {
+    // Fetch all artists from the API
+    axios.get('/api/allArtist')
+      .then(response => {
+        setArtists(response.data);
+      })
+      .catch(error => {
+        console.error('There was an error fetching the artists!', error);
+      });
+  }, []);
+
+  // Filter artists by PRO ID and CMO ID
+  const proArtists = artists.filter(artist => artist.id.startsWith('PRO'));
+  const cmoArtists = artists.filter(artist => artist.id.startsWith('CMO'));
+
+  // Handle the selection of the first dropdown
+  const handleProArtistChange = selectedOption => {
+    setSelectedProArtist(selectedOption);
+    // Automatically set the CMO artist if a PRO artist is selected
+    const correspondingCmoArtist = cmoArtists.find(artist => artist.id === selectedOption.id.replace('PRO', 'CMO'));
+    setSelectedCmoArtist(correspondingCmoArtist || null);
+  };
+
+  // Handle the selection of the second dropdown
+  const handleCmoArtistChange = selectedOption => {
+    setSelectedCmoArtist(selectedOption);
+  };
+
+  return (
+    <div>
+      <Select
+        options={proArtists.map(artist => ({ value: artist.id, label: artist.name }))}
+        value={selectedProArtist ? { value: selectedProArtist.id, label: selectedProArtist.name } : null}
+        onChange={handleProArtistChange}
+        placeholder="Select PRO Artist"
+      />
+
+      <Select
+        options={cmoArtists.map(artist => ({ value: artist.id, label: artist.name }))}
+        value={selectedCmoArtist ? { value: selectedCmoArtist.id, label: selectedCmoArtist.name } : null}
+        onChange={handleCmoArtistChange}
+        placeholder="Select CMO Artist"
+      />
+    </div>
+  );
+};
+
+export default ArtistSelector;
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import axios from 'axios';
