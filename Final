@@ -59,6 +59,259 @@ const FileUpload = () => {
   };
 
   const createExcelFile = (data) => {
+    const mainData = data.map(item => ({
+      'Song Name': item.work,
+      'Alternate Song Name': item.awork,
+      'Language': item.language,
+      'Sublanguage': item.sublanguage,
+      'Movie Name': item.movie,
+      'Subtitle': item.subtitle,
+      'Type of Work': item.type_of_work,
+      'Work Category': item.work_category,
+      'Work Subcategory': item.work_subcategory,
+      'Duration': item.duration,
+      'CAE': item.cae,
+      'Release Year': item.release_year,
+      'Date of Release': item.date_of_release,
+      'Inlay': item.inlay,
+      'Website1': item.website1,
+      'Website2': item.website2,
+      'YouTube': item.youtube,
+      'Label': item.label,
+      'Producer': item.producer,
+      'Director': item.director,
+      'Principal': item.principal,
+      'Supporting': item.supporting,
+      'Production': item.production,
+      'Channel': item.channel,
+    }));
+
+    const songArtistsData = data.flatMap(item =>
+      item.songArtists.map(artist => ({
+        'Song Name': item.work,
+        'Joshua ID': artist.artist.joshua_id,
+        'Role': artist.role,
+      }))
+    );
+
+    const tuneCodesData = data.flatMap(item =>
+      item.tuneCodes.map(tuneCode => ({
+        'Song Name': item.work,
+        'Tune Code': tuneCode.tuneCode,
+        'ISRC': tuneCode.isrc,
+        'ISWC': tuneCode.iswc,
+        'Society ID': tuneCode.societyid,
+        'Production ID': tuneCode.productionid,
+        'Last Date of Distribution': tuneCode.lastdateofdistribution,
+        'Active Case Indicator': tuneCode.activecaseindicator,
+        'Client Status': tuneCode.clientstatus,
+        'General Status': tuneCode.generalstatus,
+        'Purpose of Amendment': tuneCode.purposeofamendment,
+        'Amendment Registered On': tuneCode.amendmentregisteredon,
+      }))
+    );
+
+    const mainWorksheet = XLSX.utils.json_to_sheet(mainData);
+    const songArtistsWorksheet = XLSX.utils.json_to_sheet(songArtistsData);
+    const tuneCodesWorksheet = XLSX.utils.json_to_sheet(tuneCodesData);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, mainWorksheet, 'Main Data');
+    XLSX.utils.book_append_sheet(workbook, songArtistsWorksheet, 'Song Artists');
+    XLSX.utils.book_append_sheet(workbook, tuneCodesWorksheet, 'Tune Codes');
+
+    const sheetNames = ['Main Data', 'Song Artists', 'Tune Codes'];
+    sheetNames.forEach(sheetName => {
+      const worksheet = workbook.Sheets[sheetName];
+      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          const cellAddress = { c: C, r: R };
+          const cellRef = XLSX.utils.encode_cell(cellAddress);
+          if (worksheet[cellRef] && !worksheet[cellRef].v) {
+            worksheet[cellRef].s = {
+              fill: {
+                fgColor: { rgb: "FF0000" }
+              }
+            };
+          }
+        }
+      }
+    });
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    setDownloadData(url);
+  };
+
+  const handleDownloadExcel = () => {
+    if (downloadData) {
+      saveAs(downloadData, 'response.xlsx');
+      URL.revokeObjectURL(downloadData);
+      setDownloadData(null);
+    }
+  };
+
+  const columns = [
+    { name: 'Song Name', selector: 'work', sortable: true },
+    { name: 'Alternate Song Name', selector: 'awork', sortable: true },
+    { name: 'Language', selector: 'language', sortable: true },
+    { name: 'Sublanguage', selector: 'sublanguage', sortable: true },
+    { name: 'Movie Name', selector: 'movie', sortable: true },
+    { name: 'Subtitle', selector: 'subtitle', sortable: true },
+    { name: 'Type of Work', selector: 'type_of_work', sortable: true },
+    { name: 'Work Category', selector: 'work_category', sortable: true },
+    { name: 'Work Subcategory', selector: 'work_subcategory', sortable: true },
+    { name: 'Duration', selector: 'duration', sortable: true },
+    { name: 'CAE', selector: 'cae', sortable: true },
+    { name: 'Release Year', selector: 'release_year', sortable: true },
+    { name: 'Date of Release', selector: 'date_of_release', sortable: true },
+    { name: 'Inlay', selector: 'inlay', sortable: true },
+    { name: 'Website1', selector: 'website1', sortable: true },
+    { name: 'Website2', selector: 'website2', sortable: true },
+    { name: 'YouTube', selector: 'youtube', sortable: true },
+    { name: 'Label', selector: 'label', sortable: true },
+    { name: 'Producer', selector: 'producer', sortable: true },
+    { name: 'Director', selector: 'director', sortable: true },
+    { name: 'Principal', selector: 'principal', sortable: true },
+    { name: 'Supporting', selector: 'supporting', sortable: true },
+    { name: 'Production', selector: 'production', sortable: true },
+    { name: 'Channel', selector: 'channel', sortable: true },
+  ];
+
+  const SongArtistComponent = ({ data }) => (
+    <DataTable
+      columns={[
+        { name: 'Joshua ID', selector: row => row.artist.joshua_id, sortable: true },
+        { name: 'Role', selector: row => row.role, sortable: true },
+      ]}
+      data={data.songArtists}
+      noHeader
+    />
+  );
+
+  const TuneCodeComponent = ({ data }) => (
+    <DataTable
+      columns={[
+        { name: 'Tune Code', selector: row => row.tuneCode, sortable: true },
+        { name: 'ISRC', selector: row => row.isrc, sortable: true },
+        { name: 'ISWC', selector: row => row.iswc, sortable: true },
+        { name: 'Society ID', selector: row => row.societyid, sortable: true },
+        { name: 'Production ID', selector: row => row.productionid, sortable: true },
+        { name: 'Last Date of Distribution', selector: row => row.lastdateofdistribution, sortable: true },
+        { name: 'Active Case Indicator', selector: row => row.activecaseindicator, sortable: true },
+        { name: 'Client Status', selector: row => row.clientstatus, sortable: true },
+        { name: 'General Status', selector: row => row.generalstatus, sortable: true },
+        { name: 'Purpose of Amendment', selector: row => row.purposeofamendment, sortable: true },
+        { name: 'Amendment Registered On', selector: row => row.amendmentregisteredon, sortable: true },
+      ]}
+      data={data.tuneCodes}
+      noHeader
+    />
+  );
+
+  const ExpandedComponent = ({ data }) => (
+    <div>
+      <SongArtistComponent data={data} />
+      <TuneCodeComponent data={data} />
+    </div>
+  );
+
+  return (
+    <div className='card'>
+      <div className='final-upload-header'>
+        <h1>Final Upload</h1>
+        <div className='final-upload-header-button'>
+          <input type="file" onChange={handleFileChange} />
+          <button className='button-70' onClick={handleUploadAndView}>UPLOAD & VIEW</button>
+          <button className='button-70' onClick={handleSubmitExcelDatabase}>SUBMIT</button>
+          <button className='button-70' onClick={handleDownloadExcel} disabled={!downloadData}>DOWNLOAD NOT UPLOADED SONG EXCEL</button>
+        </div>
+      </div>
+      <br />
+      {data.length > 0 && (
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          expandableRows
+          expandableRowsComponent={ExpandedComponent}
+        />
+      )}
+    </div>
+  );
+};
+
+export default FileUpload;
+
+
+
+
+
+
+
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap-css-only/css/bootstrap.min.css';
+import React, { useState } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { BASE_URL } from '../../services/Api';
+import authHeader from '../../services/auth-header';
+import Swal from 'sweetalert2';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+  const [downloadData, setDownloadData] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleUploadAndView = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/view`, formData, {
+        headers: authHeader()
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleSubmitExcelDatabase = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/finalUploadExcel`, formData, {
+        headers: authHeader()
+      });
+      setDownloadData(response.data);
+      createExcelFile(response.data);
+    } catch (error) {
+      console.error('Error uploading Excel file:', error);
+    }
+  };
+
+  const createExcelFile = (data) => {
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
