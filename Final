@@ -1,3 +1,190 @@
+
+import React, { useState } from 'react';
+import axios from 'axios';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { BASE_URL } from '../../services/Api';
+import authHeader from '../../services/auth-header';
+import Swal from 'sweetalert2';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+  const [downloadData, setDownloadData] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleUploadAndView = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/view`, formData, {
+        headers: authHeader()
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleSubmitExcelDatabase = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/finalUploadExcel`, formData, {
+        headers: authHeader()
+      });
+      setDownloadData(response.data);
+      createExcelFile(response.data);
+    } catch (error) {
+      console.error('Error uploading Excel file:', error);
+    }
+  };
+
+  const createExcelFile = (data) => {
+    // Combine main data, song artist data, and tune code data into a single dataset
+    const combinedData = data.flatMap(item =>
+      item.songArtists.flatMap(artist =>
+        item.tuneCodes.map(tuneCode => ({
+          'Song Name': item.work || "",
+          'Alternate Song Name': item.awork || "",
+          'Language': item.language || "",
+          'Sublanguage': item.sublanguage || "",
+          'Movie Name': item.movie || "",
+          'Subtitle': item.subtitle || "",
+          'Type of Work': item.type_of_work || "",
+          'Work Category': item.work_category || "",
+          'Work Subcategory': item.work_subcategory || "",
+          'Duration': item.duration || "",
+          'CAE': item.cae || "",
+          'Release Year': item.release_year || "",
+          'Date of Release': item.date_of_release || "",
+          'Inlay': item.inlay || "",
+          'Website1': item.website1 || "",
+          'Website2': item.website2 || "",
+          'YouTube': item.youtube || "",
+          'Label': item.label || "",
+          'Producer': item.producer || "",
+          'Director': item.director || "",
+          'Principal': item.principal || "",
+          'Supporting': item.supporting || "",
+          'Production': item.production || "",
+          'Channel': item.channel || "",
+          'Joshua ID': artist.artist.joshua_id || "",
+          'Role': artist.role || "",
+          'Tune Code': tuneCode.tuneCode || "",
+          'ISRC': tuneCode.isrc || "",
+          'ISWC': tuneCode.iswc || "",
+          'Society ID': tuneCode.societyid || "",
+          'Production ID': tuneCode.productionid || "",
+          'Last Date of Distribution': tuneCode.lastdateofdistribution || "",
+          'Active Case Indicator': tuneCode.activecaseindicator || "",
+          'Client Status': tuneCode.clientstatus || "",
+          'General Status': tuneCode.generalstatus || "",
+          'Purpose of Amendment': tuneCode.purposeofamendment || "",
+          'Amendment Registered On': tuneCode.amendmentregisteredon || ""
+        }))
+      )
+    );
+
+    const worksheet = XLSX.utils.json_to_sheet(combinedData);
+
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = { c: C, r: R };
+        const cellRef = XLSX.utils.encode_cell(cellAddress);
+        const cell = worksheet[cellRef];
+        if (cell && cell.v !== null && cell.v !== "") {
+          if (Object.keys(combinedData[0])[C] === 'Joshua ID' && cell.v) {
+            // Apply yellow background for Joshua ID cells
+            cell.s = {
+              fill: {
+                fgColor: { rgb: "FFFF00" }
+              }
+            };
+          } else {
+            // Apply other styling rules here as needed
+            cell.s = {
+              fill: {
+                fgColor: { rgb: "FFFFFF" } // Default white background for other cells
+              }
+            };
+          }
+        } else {
+          worksheet[cellRef] = { v: "" };
+          worksheet[cellRef].s = {
+            fill: {
+              fgColor: { rgb: "FF0000" } // Red background for empty cells
+            }
+          };
+        }
+      }
+    }
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'All Data');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, 'response.xlsx');
+  };
+
+  const handleDownloadExcel = () => {
+    if (downloadData) {
+      saveAs(downloadData, 'response.xlsx');
+      URL.revokeObjectURL(downloadData);
+      setDownloadData(null);
+    }
+  };
+
+  return (
+    <div className='card'>
+      <div className='final-upload-header'>
+        <h1>Final Upload</h1>
+        <div className='final-upload-header-button'>
+          <input type="file" onChange={handleFileChange} />
+          <button className='button-70' onClick={handleUploadAndView}>UPLOAD & VIEW</button>
+          <button className='button-70' onClick={handleSubmitExcelDatabase}>SUBMIT</button>
+          <button className='button-70' onClick={handleDownloadExcel} disabled={!downloadData}>DOWNLOAD NOT UPLOADED SONG EXCEL</button>
+        </div>
+      </div>
+      <br />
+      {data.length > 0 && (
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          expandableRows
+          expandableRowsComponent={ExpandedComponent}
+        />
+      )}
+    </div>
+  );
+};
+
+export default FileUpload;
+
+
+
+
+
+
 const createExcelFile = (data) => {
   // Combine main data, song artist data, and tune code data into a single dataset
   const combinedData = data.map(item => {
