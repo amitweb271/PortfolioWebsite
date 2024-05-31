@@ -1,3 +1,79 @@
+
+const createExcelFile = (data) => {
+  const mainData = data.map(item => ({
+    'Song Name': item.work,
+    'Alternate Song Name': item.awork,
+    'Language': item.language,
+    'Sublanguage': item.sublanguage,
+    'Movie Name': item.movie,
+    'Subtitle': item.subtitle,
+    'Type of Work': item.type_of_work,
+    'Work Category': item.work_category,
+    'Work Subcategory': item.work_subcategory,
+    'Duration': item.duration,
+    'CAE': item.cae,
+    'Release Year': item.release_year,
+    'Date of Release': item.date_of_release,
+    'Inlay': item.inlay,
+    'Website1': item.website1,
+    'Website2': item.website2,
+    'YouTube': item.youtube,
+    'Label': item.label,
+    'Producer': item.producer,
+    'Director': item.director,
+    'Principal': item.principal,
+    'Supporting': item.supporting,
+    'Production': item.production,
+    'Channel': item.channel,
+    'Joshua ID': item.songArtists.map(artist => artist.artist.joshua_id).join(', '), // Join Joshua IDs
+    'Role': item.songArtists.map(artist => artist.role).join(', '), // Join Roles
+    'Tune Code': item.tuneCodes.map(tuneCode => tuneCode.tuneCode).join(', '), // Join Tune Codes
+    'ISRC': item.tuneCodes.map(tuneCode => tuneCode.isrc).join(', '), // Join ISRCs
+    'ISWC': item.tuneCodes.map(tuneCode => tuneCode.iswc).join(', '), // Join ISWCs
+    'Society ID': item.tuneCodes.map(tuneCode => tuneCode.societyid).join(', '), // Join Society IDs
+    'Production ID': item.tuneCodes.map(tuneCode => tuneCode.productionid).join(', '), // Join Production IDs
+    'Last Date of Distribution': item.tuneCodes.map(tuneCode => tuneCode.lastdateofdistribution).join(', '), // Join Last Date of Distribution
+    'Active Case Indicator': item.tuneCodes.map(tuneCode => tuneCode.activecaseindicator).join(', '), // Join Active Case Indicators
+    'Client Status': item.tuneCodes.map(tuneCode => tuneCode.clientstatus).join(', '), // Join Client Statuses
+    'General Status': item.tuneCodes.map(tuneCode => tuneCode.generalstatus).join(', '), // Join General Statuses
+    'Purpose of Amendment': item.tuneCodes.map(tuneCode => tuneCode.purposeofamendment).join(', '), // Join Purpose of Amendments
+    'Amendment Registered On': item.tuneCodes.map(tuneCode => tuneCode.amendmentregisteredon).join(', '), // Join Amendment Registered On
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(mainData);
+
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = { c: C, r: R };
+      const cellRef = XLSX.utils.encode_cell(cellAddress);
+      if (worksheet[cellRef] && worksheet[cellRef].v === null) {
+        worksheet[cellRef].v = "";
+      } else if (worksheet[cellRef] && worksheet[cellRef].v && worksheet[cellRef].v.includes('Joshua ID')) {
+        worksheet[cellRef].s = {
+          fill: {
+            fgColor: { rgb: "FFFF00" } // Yellow background for Joshua ID
+          }
+        };
+      }
+    }
+  }
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Combined Data');
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  saveAs(blob, 'response.xlsx');
+};
+
+
+
+
+
+
+
+
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
 import React, { useState } from 'react';
