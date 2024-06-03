@@ -1,4 +1,138 @@
+import React, { useState } from 'react';
+import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 
+const CompanyForm = () => {
+  const [showBankDetails, setShowBankDetails] = useState(false);
+  const [formData, setFormData] = useState({
+    companyName: '',
+    address: '',
+    city: '',
+    bankName: '',
+    ifscCode: '',
+    bankAddress: ''
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Post the form data
+    console.log('Form Data:', formData);
+
+    // Example of posting data using fetch
+    // Replace 'YOUR_API_ENDPOINT' with your actual API endpoint
+    fetch('YOUR_API_ENDPOINT', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  };
+
+  return (
+    <Container>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formCompanyName">
+          <Form.Label>Company Name</Form.Label>
+          <Form.Control 
+            type="text" 
+            placeholder="Enter company name" 
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleChange}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formAddress">
+          <Form.Label>Address</Form.Label>
+          <Form.Control 
+            type="text" 
+            placeholder="Enter address" 
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formCity">
+          <Form.Label>City</Form.Label>
+          <Form.Control 
+            type="text" 
+            placeholder="Enter city" 
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+          />
+        </Form.Group>
+
+        <Button variant="primary" onClick={() => setShowBankDetails(!showBankDetails)}>
+          {showBankDetails ? 'Hide Bank Details' : 'Add Bank Details'}
+        </Button>
+
+        {showBankDetails && (
+          <>
+            <Form.Group controlId="formBankName">
+              <Form.Label>Bank Name</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Enter bank name" 
+                name="bankName"
+                value={formData.bankName}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formIFSCCode">
+              <Form.Label>IFSC Code</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Enter IFSC code" 
+                name="ifscCode"
+                value={formData.ifscCode}
+                onChange={handleChange}
+              />
+            </Form.Group>
+
+            <Form.Group controlId="formBankAddress">
+              <Form.Label>Bank Address</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Enter bank address" 
+                name="bankAddress"
+                value={formData.bankAddress}
+                onChange={handleChange}
+              />
+            </Form.Group>
+          </>
+        )}
+
+        <Button variant="primary" type="submit">
+          Submit
+        </Button>
+      </Form>
+    </Container>
+  );
+};
+
+export default CompanyForm;
+
+
+
+//////
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
 import React, { useState } from 'react';
