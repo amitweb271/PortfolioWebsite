@@ -1,4 +1,99 @@
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap-css-only/css/bootstrap.min.css';
+import React, { useState } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { BASE_URL } from '../../services/Api';
+import authHeader from '../../services/auth-header';
+import Swal from 'sweetalert2';
 
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+  const [downloadData, setDownloadData] = useState(null);
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleUploadAndView = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/view`, formData, {
+        headers: authHeader()
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleSubmitExcelDatabase = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/finalUploadExcel`, formData, {
+        headers: authHeader()
+      });
+      setDownloadData(response.data);
+      createExcelFile(response.data);
+    } catch (error) {
+      console.error('Error uploading Excel file:', error);
+    }
+  };
+
+  const createExcelFile = (data) => {
+    const mainData = data.map(item => ({
+      'Song Name': item.work,
+      'Alternate Song Name': item.awork,
+      'Language': item.language,
+      'Sublanguage': item.sublanguage,
+      'Movie Name': item.movie,
+      'Subtitle': item.subtitle,
+      'Type of Work': item.type_of_work,
+      'Work Category': item.work_category,
+      'Work Subcategory': item.work_subcategory,
+      'Duration': item.duration,
+      'CAE': item.cae,
+      'Release Year': item.release_year,
+      'Date of Release': item.date_of_release,
+      'Inlay': item.inlay,
+      'Website1': item.website1,
+      'Website2': item.website2,
+      'YouTube': item.youtube,
+      'Label': item.label,
+      'Producer': item.producer,
+      'Director': item.director,
+      'Principal': item.principal,
+      'Supporting': item.supporting,
+      'Production': item.production,
+      'Channel': item.channel,
+      'Joshua ID': item.songArtists.map(artist => artist.artist.joshua_id).filter(id => id).join(', '), // Join Joshua IDs, omit empty
+      'Role': item.songArtists.map(artist => artist.role).filter(role => role).join(', '), // Join Roles, omit empty
+      'Tune Code': item.tuneCodes.map(tuneCode => tuneCode.tuneCode).filter(code => code).join(', '), // Join Tune Codes, omit empty
+      'ISRC': item.tuneCodes.map(tuneCode => tuneCode.isrc).filter(isrc => isrc).join(', '), // Join ISRCs, omit empty
+      'ISWC': item.tuneCodes.map(tuneCode => tuneCode.iswc).filter(iswc => iswc).join(', '), // Join ISWCs, omit empty
+      'Society ID': item.tuneCodes.map(tuneCode => tuneCode.societyid).filter(id => id).join
+
+
+
+////////
 import React, { useState } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
