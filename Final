@@ -1,5 +1,191 @@
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-css-only/css/bootstrap.min.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import DataTable from 'react-data-table-component';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import { BASE_URL } from '../../services/Api';
+import authHeader from '../../services/auth-header';
+import Swal from 'sweetalert2';
+
+const FileUpload = () => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [data, setData] = useState([]);
+  const [downloadData, setDownloadData] = useState(null);
+  const [artists, setArtists] = useState([]);
+
+  useEffect(() => {
+    fetchAllArtists();
+  }, []);
+
+  const fetchAllArtists = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}artist/getAllArtists`, {
+        headers: authHeader()
+      });
+      setArtists(response.data);
+    } catch (error) {
+      console.error('Error fetching artists:', error);
+    }
+  };
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleUploadAndView = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/view`, formData, {
+        headers: authHeader()
+      });
+      console.log('File uploaded successfully:', response.data);
+      setData(response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
+  const handleSubmitExcelDatabase = async () => {
+    if (!selectedFile) {
+      Swal.fire("Please select an Excel file first!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('multi', selectedFile);
+
+    try {
+      const response = await axios.post(`${BASE_URL}song/finalUploadExcel`, formData, {
+        headers: authHeader()
+      });
+      setDownloadData(response.data);
+      createExcelFile(response.data);
+    } catch (error) {
+      console.error('Error uploading Excel file:', error);
+    }
+  };
+
+  const createExcelFile = (data) => {
+    const artistJoshuaIDs = artists.map(artist => artist.joshua_id);
+
+    const mainData = data.map(item => ({
+      'Song Name': item.work || '',
+      'Alternate Song Name': item.awork || '',
+      'Language': item.language || '',
+      'Sublanguage': item.sublanguage || '',
+      'Movie Name': item.movie || '',
+      'Subtitle': item.subtitle || '',
+      'Type of Work': item.type_of_work || '',
+      'Work Category': item.work_category || '',
+      'Work Subcategory': item.work_subcategory || '',
+      'Duration': item.duration || '',
+      'CAE': item.cae || '',
+      'Release Year': item.release_year || '',
+      'Date of Release': item.date_of_release || '',
+      'Inlay': item.inlay || '',
+      'Website1': item.website1 || '',
+      'Website2': item.website2 || '',
+      'YouTube': item.youtube || '',
+      'Label': item.label || '',
+      'Producer': item.producer || '',
+      'Director': item.director || '',
+      'Principal': item.principal || '',
+      'Supporting': item.supporting || '',
+      'Production': item.production || '',
+      'Channel': item.channel || '',
+      'Joshua ID': item.songArtists.map(artist => {
+        const joshuaID = artist.artist ? artist.artist.joshua_id : '';
+        return artistJoshuaIDs.includes(joshuaID) ? joshuaID : 'Joshua ID is not matching in database';
+      }).filter(id => id).join(', '), // Join Joshua IDs, omit empty
+      'Role': item.songArtists.map(artist => {
+        const role = artist.role || '';
+        return role === role.toUpperCase() ? role : 'Role is not capital letter';
+      }).join(', '), // Check role capitalization
+      'Tune Code': item.tuneCodes.map(tuneCode => tuneCode.tuneCode || '').filter(code => code).join(', '), // Join Tune Codes, omit empty
+      'ISRC': item.tuneCodes.map(tuneCode => tuneCode.isrc || '').filter(isrc => isrc).join(', '), // Join ISRCs, omit empty
+      'ISWC': item.tuneCodes.map(tuneCode => tuneCode.iswc || '').filter(iswc => iswc).join(', '), // Join ISWCs, omit empty
+      'Society ID': item.tuneCodes.map(tuneCode => tuneCode.societyid || '').filter(id => id).join(', '), // Join Society IDs, omit empty
+      'Production ID': item.tuneCodes.map(tuneCode => tuneCode.productionid || '').filter(id => id).join(', '), // Join Production IDs, omit empty
+      'Last Date of Distribution': item.tuneCodes.map(tuneCode => tuneCode.lastdateofdistribution || '').filter(date => date).join(', '), // Join Last Date of Distribution, omit empty
+      'Active Case Indicator': item.tuneCodes.map(tuneCode => tuneCode.activecaseindicator || '').filter(indicator => indicator).join(', '), // Join Active Case Indicators, omit empty
+      'Client Status': item.tuneCodes.map(tuneCode => tuneCode.clientstatus || '').filter(status => status).join(', '), // Join Client Statuses, omit empty
+      'General Status': item.tuneCodes.map(tuneCode => tuneCode.generalstatus || '').filter(status => status).join(', '), // Join General Statuses, omit empty
+      'Purpose of Amendment': item.tuneCodes.map(tuneCode => tuneCode.purposeofamendment || '').filter(purpose => purpose).join(', '), // Join Purpose of Amendment, omit empty
+      'Amendment Registered On': item.tuneCodes.map(tuneCode => tuneCode.amendmentregisteredon || '').filter(date => date).join(', '), // Join Amendment Registered On, omit empty
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(mainData);
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Main Data');
+
+    // Apply styling to Joshua ID cells
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = { c: C, r: R };
+        const cellRef = XLSX.utils.encode_cell(cellAddress);
+        const cell = worksheet[cellRef];
+
+        if (cell && cell.v && cell.v.toString().includes('Joshua ID')) {
+          cell.s = {
+            fill: {
+              fgColor: { rgb: "FFFF00" } // Yellow background
+            }
+          };
+        }
+      }
+    }
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    setDownloadData(url);
+  };
+
+  const handleDownloadExcel = () => {
+    if (downloadData) {
+      saveAs(downloadData, 'response.xlsx');
+      URL.revokeObjectURL(downloadData);
+      setDownloadData(null);
+    }
+  };
+
+  const columns = [
+    { name: 'Song Name', selector: 'work', sortable: true },
+    { name: 'Alternate Song Name', selector: 'awork', sortable: true },
+    { name: 'Language', selector: 'language', sortable: true },
+    { name: 'Sublanguage', selector: 'sublanguage', sortable: true },
+    { name: 'Movie Name', selector: 'movie', sortable: true },
+    { name: 'Subtitle', selector: 'subtitle', sortable: true },
+    { name: 'Type of Work', selector: 'type_of_work', sortable: true },
+    { name: 'Work Category', selector: 'work_category', sortable: true },
+    { name: 'Work Subcategory', selector: 'work_subcategory', sortable: true },
+    { name: 'Duration', selector: 'duration', sortable: true },
+    { name: 'CAE', selector: 'cae', sortable: true },
+    { name: 'Release Year', selector: 'release_year', sortable: true },
+    { name: 'Date of Release', selector: 'date_of_release', sortable: true },
+    { name: 'Inlay', selector
+
+
+
+
+
+amit
+
+
+
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'bootstrap-css-only/css/bootstrap.min.css';
 import React, { useState } from 'react';
 import axios from 'axios';
 import DataTable from 'react-data-table-component';
