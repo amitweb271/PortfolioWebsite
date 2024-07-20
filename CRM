@@ -1,0 +1,131 @@
+import React from 'react';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+const data = [
+  { name: 'Jan', sales: 4000, purchases: 2400 },
+  { name: 'Feb', sales: 3000, purchases: 1398 },
+  { name: 'Mar', sales: 2000, purchases: 9800 },
+  { name: 'Apr', sales: 2780, purchases: 3908 },
+  { name: 'May', sales: 1890, purchases: 4800 },
+  { name: 'Jun', sales: 2390, purchases: 3800 },
+  { name: 'Jul', sales: 3490, purchases: 4300 },
+];
+
+const CRMCard = () => (
+  <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', width: '100%', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+    <h3>Product Sales & Purchases</h3>
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data}>
+        <Line type="monotone" dataKey="sales" stroke="#8884d8" />
+        <Line type="monotone" dataKey="purchases" stroke="#82ca9d" />
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+export default CRMCard;
+
+
+import React from 'react';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+const data = [
+  { name: 'Mon', orders: 4000 },
+  { name: 'Tue', orders: 3000 },
+  { name: 'Wed', orders: 2000 },
+  { name: 'Thu', orders: 2780 },
+  { name: 'Fri', orders: 1890 },
+  { name: 'Sat', orders: 2390 },
+  { name: 'Sun', orders: 3490 },
+];
+
+const NewOrdersCard = () => (
+  <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', width: '300px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+    <h3>New Orders</h3>
+    <div style={{ fontSize: '24px', fontWeight: 'bold' }}>35,084</div>
+    <div style={{ color: 'red' }}>-2.8%</div>
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart data={data}>
+        <Line type="monotone" dataKey="orders" stroke="#8884d8" />
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+export default NewOrdersCard;
+
+
+
+import React from 'react';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+const data = [
+  { name: 'Mon', customers: 300 },
+  { name: 'Tue', customers: 400 },
+  { name: 'Wed', customers: 500 },
+  { name: 'Thu', customers: 200 },
+  { name: 'Fri', customers: 278 },
+  { name: 'Sat', customers: 189 },
+  { name: 'Sun', customers: 390 },
+];
+
+const NewCustomersCard = () => (
+  <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', width: '300px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+    <h3>New Customers</h3>
+    <div style={{ fontSize: '24px', fontWeight: 'bold' }}>3,897</div>
+    <div style={{ color: 'green' }}>+3.3%</div>
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart data={data}>
+        <Line type="monotone" dataKey="customers" stroke="#82ca9d" />
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+export default NewCustomersCard;
+
+import React from 'react';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
+const data = [
+  { name: 'Mon', orders: 4000 },
+  { name: 'Tue', orders: 3000 },
+  { name: 'Wed', orders: 2000 },
+  { name: 'Thu', orders: 2780 },
+  { name: 'Fri', orders: 1890 },
+  { name: 'Sat', orders: 2390 },
+  { name: 'Sun', orders: 3490 },
+];
+
+const NewOrdersCard = () => (
+  <div style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', width: '300px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+    <h3>New Orders</h3>
+    <div style={{ fontSize: '24px', fontWeight: 'bold' }}>35,084</div>
+    <div style={{ color: 'red' }}>-2.8%</div>
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart data={data}>
+        <Bar dataKey="orders" fill="#8884d8" />
+        <CartesianGrid stroke="#ccc" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+);
+
+export default NewOrdersCard;
+
+
