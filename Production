@@ -1,0 +1,100 @@
+Aapke ERP project ke liye Bill of Material (BOM), Production Order, aur Issue Slip ka structure aur calculations yeh rahenge:
+
+---
+
+## **1. Bill of Material (BOM)**
+Bill of Material ek structured list hoti hai jo dikhati hai ki ek **Finished Product** banane ke liye kaun-kaun se **Raw Materials** aur **Sub-components** lagte hain.
+
+### **BOM Table Structure (Fields)**
+| Field Name         | Description |
+|-------------------|-------------|
+| **BOM ID** | Unique identifier for BOM |
+| **Finished Product** | Jiska BOM ban raha hai (e.g., Food Tube) |
+| **Version** | BOM versioning ke liye |
+| **Raw Material Name** | Required materials (e.g., Silicon Rubber, Catalyst A, Catalyst B/C) |
+| **Quantity Per Unit** | Har raw material ki quantity ek unit finished product ke liye |
+| **UOM (Unit of Measure)** | Kg, Gram, Liters, etc. |
+| **Effective Date** | BOM ki validity start date |
+| **Status** | Active, Inactive |
+| **Created By** | User who created BOM |
+| **Created Date** | BOM creation date |
+
+### **Example BOM for Food Tube**
+| BOM ID | Finished Product | Raw Material | Quantity | UOM |
+|--------|-----------------|--------------|---------|-----|
+| 1001 | Food Tube | Silicon Rubber | 30 | Kg |
+| 1001 | Food Tube | Catalyst A | 200 | Gram |
+| 1001 | Food Tube | Catalyst B/C | 300 | Gram |
+
+---
+
+## **2. Production Order**
+Production Order tab generate hoti hai jab kisi finished product ka production start karna hota hai.
+
+### **Production Order Table Structure (Fields)**
+| Field Name         | Description |
+|-------------------|-------------|
+| **Production Order ID** | Unique ID for tracking |
+| **BOM ID** | Reference to BOM |
+| **Finished Product** | Kaunsa product ban raha hai |
+| **Batch Number** | Unique batch identifier |
+| **Production Quantity** | Kitna output banana hai |
+| **Planned Start Date** | Kab start hoga |
+| **Planned End Date** | Estimated completion |
+| **Actual Start Date** | Real start date |
+| **Actual End Date** | Real end date |
+| **Status** | Open, In Progress, Completed |
+
+### **Example Production Order**
+| Production Order ID | BOM ID | Finished Product | Batch Number | Production Qty | Status |
+|--------------------|------|--------------|------------|--------------|--------|
+| 5001 | 1001 | Food Tube | FT-20250318 | 100 Tubes | In Progress |
+
+---
+
+## **3. Issue Slip**
+Issue Slip tab generate hoti hai jab raw materials ko production floor ke liye issue kiya jata hai.
+
+### **Issue Slip Table Structure (Fields)**
+| Field Name         | Description |
+|-------------------|-------------|
+| **Issue Slip ID** | Unique ID |
+| **Production Order ID** | Reference to Production Order |
+| **MOC (Material of Construction)** | Raw material details |
+| **Batch Number** | Production batch ID |
+| **Material Name** | Raw material used |
+| **Issued Quantity** | Kitni quantity di gayi hai |
+| **UOM** | Unit of Measure |
+| **Issued Date** | Issue date |
+| **Issued By** | Kisne issue kiya |
+
+### **Example Issue Slip**
+| Issue Slip ID | Production Order ID | MOC | Batch Number | Material Name | Issued Qty | UOM | Issued Date |
+|--------------|-----------------|----|------------|--------------|----------|-----|------------|
+| IS-9001 | 5001 | Silicon Rubber | FT-20250318 | Silicon Rubber | 30 | Kg | 2025-03-18 |
+| IS-9002 | 5001 | Catalyst A | FT-20250318 | Catalyst A | 200 | Gram | 2025-03-18 |
+| IS-9003 | 5001 | Catalyst B/C | FT-20250318 | Catalyst B/C | 300 | Gram | 2025-03-18 |
+
+---
+
+## **Calculations**
+1. **Total Raw Material Needed = Production Quantity × Quantity Per Unit (From BOM)**
+   - Example: Agar ek **Food Tube** ke liye 30 Kg Silicon Rubber chahiye aur hum **100 Tubes** bana rahe hain, to:
+     - **Total Silicon Rubber Required = 100 × 30 Kg = 3000 Kg**
+     - **Total Catalyst A Required = 100 × 200g = 20,000g (20 Kg)**
+     - **Total Catalyst B/C Required = 100 × 300g = 30,000g (30 Kg)**
+
+2. **Material Stock Validation** (Check ki required material available hai ya nahi)
+
+3. **Issue Slip Generation** (Jitna stock issue kiya ja raha hai, uska record maintain hoga)
+
+---
+
+### **Workflow Summary**
+1. **BOM Create karo** (Define materials aur quantities)
+2. **Production Order Generate karo** (Jisme BOM linked hoga)
+3. **Issue Slip Generate karo** (Raw materials issue karne ke liye)
+4. **Production Process Complete karo** (Agar sab materials issue ho gaye aur process complete ho gaya)
+5. **Stock Update karo** (Raw materials reduce aur finished goods add)
+
+Agar aur details chahiye ya koi customization chahiye to batao!
