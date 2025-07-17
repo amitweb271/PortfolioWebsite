@@ -1,0 +1,176 @@
+
+
+Get App
+Hello bhai java script and react js interview me logical interview questions Keya puchha jata hai in india me
+भाई, JavaScript और React.js के इंटरव्यू में इंडिया में Logical Questions बहुत पूछे जाते हैं। ये questions आपके problem-solving skills और coding logic को चेक करने के लिए होते हैं।
+
+1. JavaScript में पूछे जाने वाले Logical Questions:
+✅ Basic Logic-Based:
+
+Fibonacci Series बनाओ।
+
+Prime Number चेक करो।
+
+Palindrome String/Number चेक करो।
+
+Factorial निकालो (Recursion और Loop दोनों से)।
+
+Array से Duplicates हटाओ।
+
+✅ Tricky JS Output Questions:
+
+javascript
+console.log(1 + "1" - 1); // "11" - 1 = 10
+console.log([] + []); // "" (empty string)
+console.log(typeof NaN); // "number"
+console.log(!!"false" == !!"true"); // true
+✅ Function-Based Logic:
+
+Currying Function बनाओ (e.g., sum(1)(2)(3)()).
+
+Debouncing और Throttling implement करो।
+
+Deep Copy vs Shallow Copy समझाओ।
+
+2. React.js में पूछे जाने वाले Logical Questions:
+✅ Component-Based Logic:
+
+Infinite Scroll कैसे बनाओगे?
+
+एक Modal बनाओ जो Parent के State से Control हो।
+
+Lazy Loading कैसे implement करोगे?
+
+✅ State Management Tricks:
+
+useReducer से Todo App बनाओ।
+
+Context API + useState से Theme Toggle करो (Dark/Light Mode).
+
+✅ Performance Optimization:
+
+Memoization (React.memo, useMemo, useCallback) का use-case बताओ।
+
+Virtualized List क्यों जरूरी है?
+
+3. Real-World Scenario Questions:
+❓ "अगर API Response बहुत स्लो आ रहा है, तो UI को कैसे Handle करोगे?"
+👉 Ans: Loader दिखाओ, Skeleton UI लगाओ, और Error Boundary से Fallback UI दिखाओ।
+
+❓ "एक Button को बार-बार Click करने से Multiple API Calls कैसे रोकोगे?"
+👉 Ans: Debouncing या Disabled State लगाकर।
+
+4. DSA-Based Questions (Freshers के लिए):
+Array में Second Largest Element निकालो।
+
+String से Vowels Count करो।
+
+Binary Search का Code लिखो।
+
+Final Tips:
+HackerRank / LeetCode के Easy-Medium Questions प्रैक्टिस करो।
+
+React Lifecycle और Hooks की अच्छी समझ रखो।
+
+JavaScript Closures, Prototype, Event Loop जैसे Concepts Clear रखो।
+
+क्या आपको किसी Specific Topic पर और जानकारी चाहिए? 😊
+
+Mujhe Front end Java script and react js me DSA se related questions Keya puchha ja sakta hai
+Frontend (JavaScript + React.js) के इंटरव्यू में DSA (Data Structures and Algorithms) से जुड़े questions अक्सर पूछे जाते हैं, खासकर Freshers और Mid-level developers के लिए। ये questions आमतौर पर problem-solving skills, optimization, और real-world scenarios को टेस्ट करने के लिए होते हैं।
+
+1. JavaScript में पूछे जाने वाले DSA-Based Questions
+Arrays & Strings (सबसे ज्यादा पूछे जाते हैं)
+✅ Basic Problems:
+
+Find the missing number in an array of 1 to N.
+
+Remove duplicates from a sorted/unsorted array.
+
+Check if two strings are anagrams (e.g., "listen" and "silent").
+
+Find the first non-repeating character in a string.
+
+✅ Medium-Level Problems:
+
+Two Sum Problem (एक array में दो numbers ढूंढो जिनका योग target के बराबर हो)।
+
+Maximum Subarray Sum (Kadane's Algorithm).
+
+Rotate an array by K steps (e.g., [1,2,3,4,5] → rotate by 2 → [4,5,1,2,3]).
+
+✅ Advanced Problems:
+
+Merge Intervals (Overlapping intervals को merge करो)।
+
+Sliding Window Technique (e.g., Longest substring without repeating characters)।
+
+Objects & HashMaps (Real-world use cases)
+Count frequency of elements in an array.
+
+Find intersection of two arrays.
+
+Group Anagrams (e.g., ["eat", "tea", "tan"] → [["eat","tea"], ["tan"]]).
+
+2. React.js में DSA-Based Questions
+React में DSA questions performance optimization और data handling से जुड़े होते हैं, जैसे:
+
+Lists & Rendering Optimization
+Large List Optimization:
+
+अगर 10,000 items की list को render करना हो, तो कैसे optimize करोगे?
+
+(Ans: Virtualization - react-window या react-virtualized use करो)
+
+Infinite Scroll कैसे implement करोगे?
+
+(Ans: Intersection Observer API + Pagination)
+
+State Management & Data Flow
+Nested State Handling:
+
+एक deeply nested object में किसी value को update करो (e.g., immer.js का use)।
+
+Memoization:
+
+useMemo और useCallback कब use करोगे? (जब expensive calculations को cache करना हो)।
+
+Real-World Scenarios
+Debouncing in Search Bar
+
+User जब search bar में type करे, तो API call को delay करो (300ms)।
+
+(Ans: lodash.debounce या custom debounce function)
+
+Throttling in Button Clicks
+
+Submit button को बार-बार click करने से multiple API calls रोको।
+
+3. Coding Challenges (Live / Take-home)
+कुछ companies live coding या take-home assignments देती हैं, जैसे:
+
+Todo App with CRUD operations + LocalStorage.
+
+Sortable Table (किसी column के basis पर sort करो)।
+
+Pagination (API से data fetch करके paginate करो)।
+
+4. DSA for UI Problem-Solving
+कुछ questions UI logic पर based होते हैं, जैसे:
+
+Star Rating Component कैसे बनाओगे? (Dynamic rendering + state management)।
+
+Nested Comments System (Reddit-style) कैसे design करोगे? (Recursive components use करो)
+
+Final Tips: कैसे तैयारी करें?
+Basic DSA (Arrays, Strings, Objects) जरूर revise करो।
+
+React Performance Tricks (Memoization, Lazy Loading, Virtualization) पढ़ो।
+
+Real-World Projects में DSA apply करने की practice करो (e.g., Search Filter, Pagination)।
+
+क्या आपको किसी specific topic पर examples चाहिए? 😊
+
+New chat
+Message DeepSeek
+AI-generated, for reference only
